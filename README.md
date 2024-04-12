@@ -42,43 +42,45 @@ pip install -r requirements.txt
 ## Directory Structure
 
 ├── data<br>
+│   ├── external<br>
+│   ├── interim<br>
+│   ├── processed<br>
 │   ├── raw<br>
 │   │   ├── data.csv<br>
-│   │   └── (other raw data files)<br>
+├── models<br>
 ├── notebooks<br>
 │   └── Maternal_Health_Risk_Data_EDA.ipynb<br>
 ├── src<br>
-│   ├── data_processing<br>
-│   │   └── fetch_dataset.py<br>
-│   ├── modeling<br>
-│   │   └── train_model.py<br>
-│   └── evaluation<br>
-│       └── (evaluation scripts)<br>
+│   ├── data<br>
+│   │   └── ingestion.py<br>
+│   ├── models<br>
+│   │   └── train.py<br>
+│   └── visualization<br>
 ├── requirements.txt<br>
 └── README.md<br>
 
 
 
-## Description of `fetch_dataset.py`
+## Description of `ingestion.py`
 
-The `fetch_dataset.py` file is responsible for importing and preparing the dataset for use in the project. It retrieves the maternal health risk dataset from the UCI ML Repository, loads it into pandas dataframes, and provides metadata and variable information.
+The `ingestion.py` file is responsible for importing and preparing the dataset for use in the project. It retrieves the maternal health risk dataset from the UCI ML Repository, loads it into pandas dataframes, and provides metadata and variable information.
 
-## Description of `train_model.py`
+## Description of `train.py`
 
-The `train_model.py` file contains functions to train and evaluate a machine learning model using the fetched dataset. It splits the data into training and testing sets, encodes categorical labels, trains a RandomForestClassifier model, and evaluates its performance.
+The `train.py` file contains functions to train and evaluate a machine learning model using the fetched dataset. It splits the data into training and testing sets, encodes categorical labels, trains a RandomForestClassifier model, and evaluates its performance.
 
-## Instructions for Running `fetch_dataset.py` and `train_model.py`
+## Instructions for Running `ingestion.py` and `train.py`
 
-To run `fetch_dataset.py`, execute the following command:
-
-```
-python src/data_processing/fetch_dataset.py
-```
-
-To run `train_model.py`, execute the following command:
+To run `ingestion.py`, execute the following command:
 
 ```
-python src/modeling/train_model.py
+python src/data/ingestion.py
+```
+
+To run `train.py`, execute the following command:
+
+```
+python src/models/train.py
 ```
 
 ## Dataset Description
