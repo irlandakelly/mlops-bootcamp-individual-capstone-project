@@ -1,0 +1,15 @@
+artifact_uri: file:///home/irlanda/repos/cursos/mlops-bootcamp-individual-capstone-project/mlruns/0/be88b7383c7a405ba3377facf50561c8/artifacts
+end_time: 1712965172697
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: be88b7383c7a405ba3377facf50561c8
+run_name: carefree-chimp-522
+run_uuid: be88b7383c7a405ba3377facf50561c8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1712965145791
+status: 4
+tags: []
+user_id: irlanda

@@ -1,0 +1,15 @@
+artifact_uri: file:///home/irlanda/repos/cursos/mlops-bootcamp-individual-capstone-project/mlruns/0/d76c3f1a481f4b37bf4356c1714bc639/artifacts
+end_time: 1712965622923
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d76c3f1a481f4b37bf4356c1714bc639
+run_name: capricious-croc-954
+run_uuid: d76c3f1a481f4b37bf4356c1714bc639
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1712965593117
+status: 4
+tags: []
+user_id: irlanda

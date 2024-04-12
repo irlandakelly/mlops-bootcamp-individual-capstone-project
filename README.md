@@ -111,4 +111,4 @@ python src/models/train.py
   - URL: [Paper URL](https://www.semanticscholar.org/paper/f175092a3b2217c9abca5bf5d91bab3c245c6b10)
 - **Additional Information:**
   - **Summary:** Age, Systolic Blood Pressure as SystolicBP, Diastolic BP as DiastolicBP, Blood Sugar as BS, Body Temperature as BodyTemp, HeartRate and RiskLevel. All these are the responsible and significant risk factors for maternal mortality, that is one of the main concerns of SDG of UN.
-- **Model Accuracy:** The trained Random Forest Classifier model achieved an accuracy of **0.8275862068965517** on the test dataset. 
+- **Model Accuracy:** The trained Random Forest Classifier model achieved an accuracy of **0.8078817733990148** on the test dataset. 

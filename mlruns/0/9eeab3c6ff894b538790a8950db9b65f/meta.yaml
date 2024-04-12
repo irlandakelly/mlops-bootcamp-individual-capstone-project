@@ -1,0 +1,15 @@
+artifact_uri: file:///home/irlanda/repos/cursos/mlops-bootcamp-individual-capstone-project/mlruns/0/9eeab3c6ff894b538790a8950db9b65f/artifacts
+end_time: 1712965252209
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9eeab3c6ff894b538790a8950db9b65f
+run_name: fortunate-rat-768
+run_uuid: 9eeab3c6ff894b538790a8950db9b65f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1712965224765
+status: 3
+tags: []
+user_id: irlanda
