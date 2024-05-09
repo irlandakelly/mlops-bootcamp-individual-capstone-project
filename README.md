@@ -1,6 +1,10 @@
 # Wizeline MLOps Bootcamp Individual Capstone Project
 
-The Wizeline MLOps Bootcamp Individual Capstone Project focuses on implementing end-to-end machine learning operations (MLOps) practices in a real-world scenario. Utilizing Python and popular machine learning libraries, this project aims to develop and deploy a predictive model for assessing maternal health risks. The dataset, sourced from real-world healthcare settings, encompasses vital health indicators such as age, blood pressure, blood sugar levels, body temperature, and heart rate. By leveraging advanced data analysis, model training, and deployment strategies, this project endeavors to create a robust solution for predicting maternal health risks, thereby contributing to improved healthcare outcomes and supporting decision-making processes. Through rigorous exploration, modeling, and deployment phases, this project serves as a comprehensive demonstration of MLOps principles and techniques applied to a critical healthcare domain.
+The Wizeline MLOps Bootcamp Individual Capstone Project is centered on the application of end-to-end machine learning operations (MLOps) practices in a practical context. The project employs Python and widely-used machine learning libraries to build and deploy a predictive model for evaluating maternal health risks.
+
+The dataset, derived from real-world healthcare environments, includes crucial health indicators such as age, blood pressure, blood sugar levels, body temperature, and heart rate. The project leverages sophisticated data analysis, model training, and deployment strategies to create a robust solution for predicting maternal health risks. This contributes to enhancing healthcare outcomes and aids in decision-making processes.
+
+The project involves rigorous exploration, modeling, and deployment phases, serving as a comprehensive demonstration of MLOps principles and techniques in a vital healthcare domain. The project includes data ingestion and preprocessing, model training and hyperparameter tuning, model evaluation, and tracking of model metrics and parameters using MLflow. The project also demonstrates best practices in version control and reproducibility in machine learning workflows.
 
 ## Setup
 
@@ -18,26 +22,17 @@ cd mlops-bootcamp-individual-capstone-project
 ```
 
 
-3. **Create and activate a virtual environment:**
-- If you're using `venv`, run:
+3. **Build the Docker image:**
   ```
-  python -m venv env
+  docker build -t mlops-bootcamp .
   ```
-  - **Windows:**
-    ```
-    .\env\Scripts\activate
-    ```
-  - **Unix/MacOS:**
-    ```
-    source env/bin/activate
-    ```
 
-4. **Install dependencies:**
+4. **Run the Docker container:**
 
 ```
-pip install -r requirements.txt
+docker run -p 5000:5000 mlops-bootcamp
 ```
-
+After running the Docker container, you can view the MLflow experiment tracking UI by navigating to `http://localhost:5000` in your web browser.
 
 ## Directory Structure
 
@@ -63,11 +58,39 @@ pip install -r requirements.txt
 
 ## Description of `ingestion.py`
 
-The `ingestion.py` file is responsible for importing and preparing the dataset for use in the project. It retrieves the maternal health risk dataset from the UCI ML Repository, loads it into pandas dataframes, and provides metadata and variable information.
+The `ingestion.py` script is responsible for data ingestion and preprocessing. It fetches the maternal health risk dataset from the UCI ML Repository using the `fetch_ucirepo` function. The data is then loaded into pandas dataframes `X` (features) and `y` (targets).
+
+The script performs several preprocessing steps:
+
+Binning: The 'Age' feature is binned into categories using pandas' cut function.
+
+Interaction Features: A new feature 'BP_Ratio' is created as the ratio of 'SystolicBP' to 'DiastolicBP'.
+
+Polynomial Features: Two new polynomial features 'Age_squared' and 'HeartRate_cubed' are created by squaring the 'Age' feature and cubing the 'HeartRate' feature, respectively.
+
+Outlier Treatment: Outliers in the 'BS', 'BodyTemp', and 'HeartRate' features are handled by clipping values outside 1.5 times the Interquartile Range (IQR) above the third quartile (Q3) or below the first quartile (Q1).
+
+One-Hot Encoding: The 'RiskLevel' feature is one-hot encoded using the `OneHotEncoder` from sklearn, resulting in binary (0/1) columns for each risk level. The original 'RiskLevel' column is then dropped.
+
+Normalization: The 'Age', 'SystolicBP', 'DiastolicBP', 'BS', 'BodyTemp', and 'HeartRate' features are normalized (scaled to have zero mean and unit variance) using the `StandardScaler` from sklearn.
+
+The script returns the preprocessed features `X` and targets `y`.
 
 ## Description of `train.py`
 
-The `train.py` file contains functions to train and evaluate a machine learning model using the fetched dataset. It splits the data into training and testing sets, encodes categorical labels, trains a RandomForestClassifier model, and evaluates its performance.
+The `train.py` script is responsible for training and evaluating a RandomForestClassifier model on the maternal health risk dataset. It includes the following functions:
+
+load_dataset: Fetches the maternal health risk dataset from the UCI ML Repository and returns the features (X) and target labels (y).
+
+encode_labels: Encodes categorical target labels into numerical labels using sklearn's `LabelEncoder`.
+
+train_model: Trains a RandomForestClassifier model using GridSearchCV for hyperparameter tuning. The best model is returned.
+
+evaluate_model: Evaluates the trained model on the test set, prints the accuracy and classification report, and logs these metrics and the model parameters using MLflow.
+
+The `main` function orchestrates the process: it loads the dataset, encodes the target labels, splits the data into training and testing sets, trains the model, and evaluates it. The training and evaluation process is wrapped in an MLflow run for experiment tracking.
+
+The script is intended to be run as a standalone program. When run, it calls the `main` function.
 
 ## Instructions for Running `ingestion.py` and `train.py`
 
