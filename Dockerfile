@@ -20,5 +20,8 @@ RUN dvc init --no-scm
 ENV MLFLOW_TRACKING_URI=/mlflow
 RUN mkdir /mlflow
 
-# Run train.py when the container launches
-CMD ["python", "src/models/train.py"]
+# Expose port 5000 for MLflow UI
+EXPOSE 5000
+
+# Start MLflow UI and Gunicorn
+CMD ["mlflow", "ui", "--backend-store-uri", "/mlflow", "--host", "0.0.0.0"]

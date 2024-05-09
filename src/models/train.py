@@ -4,18 +4,25 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from ucimlrepo import fetch_ucirepo
 import mlflow
+from mlflow import sklearn
+
 
 def load_dataset():
     """
-    Load the maternal health risk dataset.
+    Load the maternal health risk dataset and split it into training and test sets.
 
     Returns:
-        tuple: A tuple containing features (X) and target labels (y).
+        tuple: A tuple containing training features (X_train), test features (X_test), 
+               training target labels (y_train), and test target labels (y_test).
     """
     maternal_health_risk = fetch_ucirepo(id=863)
     X = maternal_health_risk.data.features
     y = maternal_health_risk.data.targets
-    return X, y
+
+    # Split into training and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    return X_train, X_test, y_train, y_test
 
 def encode_labels(y):
     """
@@ -55,13 +62,20 @@ def train_model(X_train, y_train):
     # Initialize GridSearchCV
     grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2, scoring='accuracy')
 
+    # Flatten y_train values to a 1D array
+    y_train = y_train.values.ravel()
+
     # Fit GridSearchCV
     grid_search.fit(X_train, y_train)
 
     # Get best estimator
     best_estimator = grid_search.best_estimator_
+    
+    # Log the model with MLflow
+    sklearn.log_model(best_estimator, "model")
 
     return best_estimator
+
 
 def evaluate_model(model, X_test, y_test):
     """
@@ -91,17 +105,16 @@ def main():
     """
     Main function to load data, train model, and evaluate performance.
     """
-    # Load the dataset
-    X, y = load_dataset()
+    # Load data
+    X_train, X_test, y_train, y_test = load_dataset()
 
-    # Encode target labels
-    y_encoded = encode_labels(y)
+    # Create or get the experiment
+    experiment_name = "mlops-bootcamp"
+    experiment = mlflow.set_experiment(experiment_name)
 
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
-
-    # Train the model
-    with mlflow.start_run():
+    # Start a new run
+    with mlflow.start_run(experiment_id=experiment.experiment_id):
+        # Train the model
         model = train_model(X_train, y_train)
 
         # Evaluate the model

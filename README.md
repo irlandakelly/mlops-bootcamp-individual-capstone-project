@@ -26,13 +26,22 @@ cd mlops-bootcamp-individual-capstone-project
   ```
   docker build -t mlops-bootcamp .
   ```
+  
 
-4. **Run the Docker container:**
+4. **Create a Docker volume for MLflow data:**
 
 ```
-docker run -p 5000:5000 mlops-bootcamp
+docker volume create mlflow_data
 ```
-After running the Docker container, you can view the MLflow experiment tracking UI by navigating to `http://localhost:5000` in your web browser.
+
+
+5. **Run the Docker container with the volume mounted:**
+
+```
+docker run -v mlflow_data:/mlflow -p 5000:5000 mlops-bootcamp
+```
+
+After running the Docker container, you can view the MLflow experiment tracking UI by navigating to `http://localhost:5000` in your web browser. The MLflow data will be stored in the `mlflow_data` Docker volume and will persist even if the container is stopped or deleted.
 
 ## Directory Structure
 
