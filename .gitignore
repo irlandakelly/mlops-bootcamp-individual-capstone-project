@@ -162,6 +162,6 @@ cython_debug/
 
 .mlruns/
 mlruns/
-mlruns/0/
+.mlruns/0/
 plots/
 mlflow_data/
