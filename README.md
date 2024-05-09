@@ -52,16 +52,24 @@ After running the Docker container, you can view the MLflow experiment tracking 
 │   ├── raw<br>
 │   │   ├── data.csv<br>
 ├── models<br>
+
+
 ├── notebooks<br>
 │   └── Maternal_Health_Risk_Data_EDA.ipynb<br>
 ├── src<br>
 │   ├── data<br>
 │   │   └── ingestion.py<br>
+│   ├── exploratory_analysis<br>
+│   │   ├── clean_data.py<br>
+│   │   ├── explore_data.py<br>
+│   │   └── visualize_data.py<br>
 │   ├── models<br>
 │   │   └── train.py<br>
 │   └── visualization<br>
+├── Dockerfile.txt<br>
+├── README.md<br>
 ├── requirements.txt<br>
-└── README.md<br>
+└── run_eda.py<br>
 
 
 
@@ -85,6 +93,15 @@ Normalization: The 'Age', 'SystolicBP', 'DiastolicBP', 'BS', 'BodyTemp', and 'He
 
 The script returns the preprocessed features `X` and targets `y`.
 
+## Description of `run_eda.py`
+The `run_eda.py` script is responsible for performing exploratory data analysis (EDA) on the provided dataset. It includes the following functions:
+
+run_eda: This function executes a series of EDA tasks on the provided DataFrame. It first cleans the data by exploring outliers and identifying null values. Then, it explores the data by generating histograms, exploring outliers again, and analyzing correlations. Finally, it visualizes the data by creating scatterplots, kernel density estimation (KDE) plots, and cumulative distribution function (CDF) plots.
+
+main: The `main` function serves as the entry point for the script. It loads the dataset using the `load_dataset` function from the ingestion module. It combines the features and target labels into a single DataFrame and calls the `run_eda` function to perform EDA on the dataset.
+
+The script is designed to be executed as a standalone program. When run, it loads the dataset, conducts exploratory analysis, and visualizes the findings.
+
 ## Description of `train.py`
 
 The `train.py` script is responsible for training and evaluating a RandomForestClassifier model on the maternal health risk dataset. It includes the following functions:
@@ -101,12 +118,18 @@ The `main` function orchestrates the process: it loads the dataset, encodes the 
 
 The script is intended to be run as a standalone program. When run, it calls the `main` function.
 
-## Instructions for Running `ingestion.py` and `train.py`
+## Instructions for Running `ingestion.py`, `run_eda.py` and `train.py`
 
 To run `ingestion.py`, execute the following command:
 
 ```
 python src/data/ingestion.py
+```
+
+To run `ingestion.py`, execute the following command:
+
+```
+python run_eda.py
 ```
 
 To run `train.py`, execute the following command:
