@@ -45,15 +45,6 @@ After running the Docker container, you can view the MLflow experiment tracking 
 
 ## Directory Structure
 
-├── data<br>
-│   ├── external<br>
-│   ├── interim<br>
-│   ├── processed<br>
-│   ├── raw<br>
-│   │   ├── data.csv<br>
-├── models<br>
-
-
 ├── notebooks<br>
 │   └── Maternal_Health_Risk_Data_EDA.ipynb<br>
 ├── src<br>
