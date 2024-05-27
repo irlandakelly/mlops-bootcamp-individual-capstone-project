@@ -21,7 +21,7 @@ jobs:
 
     - name: Authenticate Docker to Google Container Registry
       run: echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
-      shell: /usr/bin/bash -e
+      shell: bash
       env:
         CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
         CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 1.1.1
