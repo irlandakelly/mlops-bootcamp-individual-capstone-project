@@ -17,18 +17,10 @@ jobs:
       uses: google-github-actions/setup-gcloud@v1
       with:
         project_id: ${{ secrets.GCP_PROJECT }}
-
-    - name: Authenticate with Google Cloud
-      uses: google-github-actions/auth@v0.4.0
-      with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+        service_account_key: ${{ secrets.GCP_CREDENTIALS }}
 
     - name: Authenticate Docker to Google Container Registry
       run: echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
-      shell: bash
-      env:
-        CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
-        CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 1.1.1
 
     - name: Build Docker image
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest -f Dockerfile.train .
