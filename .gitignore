@@ -165,3 +165,5 @@ mlruns/
 .mlruns/0/
 plots/
 mlflow_data/
+
+credentials/

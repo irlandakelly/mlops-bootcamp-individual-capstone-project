@@ -1,0 +1,40 @@
+name: Deploy MLflow UI to GCP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+        project_id: ${{ secrets.GCP_PROJECT }}
+
+    - name: Authenticate Docker to Google Container Registry
+      run: |
+        echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
+
+    - name: Build Docker image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
+
+    - name: Push Docker image
+      run: |
+        docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy mlflow-ui \
+          --image gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest \
+          --platform managed \
+          --region us-central1 \
+          --allow-unauthenticated
