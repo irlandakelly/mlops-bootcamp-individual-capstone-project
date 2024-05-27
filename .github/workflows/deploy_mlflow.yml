@@ -20,16 +20,13 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT }}
 
     - name: Authenticate Docker to Google Container Registry
-      run: |
-        echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
+      run: echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
 
     - name: Build Docker image
-      run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
+      run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
 
     - name: Push Docker image
-      run: |
-        docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
 
     - name: Deploy to Cloud Run
       run: |
