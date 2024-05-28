@@ -26,6 +26,12 @@ jobs:
     - name: Validate JSON key
       run: echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
 
+    - name: Display JSON key for debugging
+      run: |
+        echo "JSON key content:"
+        cat gcp-key.json
+        echo "End of JSON key content"
+
     - name: Authenticate Docker to Google Container Registry
       run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
 
@@ -74,6 +80,12 @@ jobs:
 
     - name: Validate JSON key
       run: echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+
+    - name: Display JSON key for debugging
+      run: |
+        echo "JSON key content:"
+        cat gcp-key.json
+        echo "End of JSON key content"
 
     - name: Authenticate Docker to Google Container Registry
       run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
