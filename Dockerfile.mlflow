@@ -1,5 +1,3 @@
-# Dockerfile.mlflow
-
 # Use an official Python runtime as a parent image
 FROM python:3.8
 
@@ -7,7 +5,7 @@ FROM python:3.8
 WORKDIR /app
 
 # Add the current directory contents into the container at /app
-ADD . /app
+COPY . /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -19,8 +17,12 @@ RUN pip install mlflow
 ENV MLFLOW_TRACKING_URI=/mlflow
 RUN mkdir /mlflow
 
-# Expose port 5000 for MLflow UI
-EXPOSE 5000
+# Create an entrypoint script to set the PORT and start the service
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Command to run the MLflow UI
-CMD ["mlflow", "ui", "--backend-store-uri", "/mlflow", "--host", "0.0.0.0"]
+# Expose port 8080 for MLflow UI
+EXPOSE 8080
+
+# Command to run the entrypoint script
+CMD ["/entrypoint.sh"]

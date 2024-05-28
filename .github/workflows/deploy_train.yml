@@ -1,4 +1,4 @@
-name: Deploy Training Script to GCP
+name: Deploy Training Script Job to GCP
 
 on:
   push:
@@ -23,8 +23,20 @@ jobs:
       with:
         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
+    - name: Grant permissions to service account
+      run: |
+        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
+          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
+          --role "roles/aiplatform.user"
+        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
+          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
+          --role "roles/storage.admin"
+        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
+          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
+          --role "roles/aiplatform.admin"
+
     - name: Authenticate Docker to Google Container Registry
-      run: echo "${{ secrets.GCP_CREDENTIALS }}" | docker login -u _json_key --password-stdin https://gcr.io
+      run: echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
 
     - name: Build Docker image
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest -f Dockerfile.train .
@@ -32,10 +44,9 @@ jobs:
     - name: Push Docker image
       run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest
 
-    - name: Deploy to Cloud Run
+    - name: Create AI Platform Custom Job
       run: |
-        gcloud run deploy training-script \
-          --image gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest \
-          --platform managed \
-          --region us-central1 \
-          --allow-unauthenticated
+        gcloud ai custom-jobs create \
+          --region=us-central1 \
+          --display-name=training-script-job \
+          --worker-pool-spec=machine-type=n1-standard-4,replica-count=1,container-image-uri=gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest

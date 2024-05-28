@@ -5,7 +5,9 @@ from sklearn.metrics import accuracy_score, classification_report
 from ucimlrepo import fetch_ucirepo
 import mlflow
 from mlflow import sklearn
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
 def load_dataset():
     """
@@ -102,23 +104,15 @@ def evaluate_model(model, X_test, y_test):
     mlflow.log_text(report, "report.txt")
 
 def main():
-    """
-    Main function to load data, train model, and evaluate performance.
-    """
-    # Load data
-    X_train, X_test, y_train, y_test = load_dataset()
-
-    # Create or get the experiment
-    experiment_name = "mlops-bootcamp"
-    experiment = mlflow.set_experiment(experiment_name)
-
-    # Start a new run
-    with mlflow.start_run(experiment_id=experiment.experiment_id):
-        # Train the model
-        model = train_model(X_train, y_train)
-
-        # Evaluate the model
-        evaluate_model(model, X_test, y_test)
+    try:
+        X_train, X_test, y_train, y_test = load_dataset()
+        experiment_name = "mlops-bootcamp"
+        experiment = mlflow.set_experiment(experiment_name)
+        with mlflow.start_run(experiment_id=experiment.experiment_id):
+            model = train_model(X_train, y_train)
+            evaluate_model(model, X_test, y_test)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
