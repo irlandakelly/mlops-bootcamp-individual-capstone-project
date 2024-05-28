@@ -6,12 +6,33 @@ on:
       - main
 
 jobs:
-  deploy-mlflow-ui:
+  test-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m venv mlops_venv
+        source mlops_venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${PYTHONPATH}:${{ github.workspace }}/src" >> $GITHUB_ENV
+
+    - name: Run tests
+      run: |
+        source mlops_venv/bin/activate
+        pytest tests/
 
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
@@ -26,22 +47,16 @@ jobs:
     - name: Validate JSON key
       run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
 
-    - name: Display JSON key for debugging
-      run: |
-        echo "JSON key content:"
-        cat gcp-key.json
-        echo "End of JSON key content"
-
     - name: Authenticate Docker to Google Container Registry
       run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
 
-    - name: Build Docker image
+    - name: Build Docker image for mlflow-ui
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
 
-    - name: Push Docker image
+    - name: Push Docker image for mlflow-ui
       run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
 
-    - name: Deploy to Cloud Run
+    - name: Deploy mlflow-ui to Cloud Run
       run: |
         gcloud run deploy mlflow-ui \
           --image gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest \
@@ -49,39 +64,10 @@ jobs:
           --region us-central1 \
           --allow-unauthenticated
 
-  deploy-training-script:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        project_id: ${{ secrets.GCP_PROJECT }}
-
-    - name: Authenticate with Google Cloud
-      uses: google-github-actions/auth@v0.4.0
-      with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-    - name: Validate JSON key
-      run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
-
-    - name: Display JSON key for debugging
-      run: |
-        echo "JSON key content:"
-        cat gcp-key.json
-        echo "End of JSON key content"
-
-    - name: Authenticate Docker to Google Container Registry
-      run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
-
-    - name: Build Docker image
+    - name: Build Docker image for training-script
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest -f Dockerfile.train .
 
-    - name: Push Docker image
+    - name: Push Docker image for training-script
       run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest
 
     - name: Create AI Platform Custom Job

@@ -65,7 +65,7 @@ def train_model(X_train, y_train):
     grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2, scoring='accuracy')
 
     # Flatten y_train values to a 1D array
-    y_train = y_train.values.ravel()
+    y_train = y_train.ravel()
 
     # Fit GridSearchCV
     grid_search.fit(X_train, y_train)
@@ -77,7 +77,6 @@ def train_model(X_train, y_train):
     sklearn.log_model(best_estimator, "model")
 
     return best_estimator
-
 
 def evaluate_model(model, X_test, y_test):
     """
