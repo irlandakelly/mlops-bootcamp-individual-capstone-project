@@ -23,8 +23,14 @@ jobs:
       with:
         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
+    - name: Validate JSON key
+      run: echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+
+    - name: Display JSON key
+      run: cat gcp-key.json
+
     - name: Authenticate Docker to Google Container Registry
-      run: echo "${{ secrets.GCP_CREDENTIALS }}" | docker login -u _json_key --password-stdin https://gcr.io
+      run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
 
     - name: Build Docker image
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
@@ -39,4 +45,3 @@ jobs:
           --platform managed \
           --region us-central1 \
           --allow-unauthenticated
- 
