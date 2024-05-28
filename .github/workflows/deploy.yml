@@ -1,4 +1,4 @@
-name: Deploy Training Script Job to GCP
+name: Deploy to GCP
 
 on:
   push:
@@ -6,7 +6,44 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy-mlflow-ui:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+
+    - name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v0.4.0
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Validate JSON key
+      run: echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+
+    - name: Authenticate Docker to Google Container Registry
+      run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
+
+    - name: Build Docker image
+      run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
+
+    - name: Push Docker image
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy mlflow-ui \
+          --image gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest \
+          --platform managed \
+          --region us-central1 \
+          --allow-unauthenticated
+
+  deploy-training-script:
     runs-on: ubuntu-latest
 
     steps:
