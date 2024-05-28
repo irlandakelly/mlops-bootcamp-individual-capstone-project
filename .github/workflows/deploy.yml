@@ -66,18 +66,6 @@ jobs:
       with:
         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-    - name: Grant permissions to service account
-      run: |
-        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
-          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
-          --role "roles/aiplatform.user"
-        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
-          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
-          --role "roles/storage.admin"
-        gcloud projects add-iam-policy-binding ${{ secrets.GCP_PROJECT }} \
-          --member "serviceAccount:mlops-service-account@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" \
-          --role "roles/aiplatform.admin"
-
     - name: Validate JSON key
       run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
 
