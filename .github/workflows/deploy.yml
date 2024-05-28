@@ -24,7 +24,7 @@ jobs:
         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
     - name: Validate JSON key
-      run: echo "${{ secrets.GCP_CREDENTIALS }}" | jq . > gcp-key.json
+      run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
 
     - name: Display JSON key for debugging
       run: |
@@ -79,7 +79,7 @@ jobs:
           --role "roles/aiplatform.admin"
 
     - name: Validate JSON key
-      run: echo "${{ secrets.GCP_CREDENTIALS }}" | jq . > gcp-key.json
+      run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
 
     - name: Display JSON key for debugging
       run: |
