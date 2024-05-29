@@ -109,6 +109,102 @@ The `main` function orchestrates the process: it loads the dataset, encodes the 
 
 The script is intended to be run as a standalone program. When run, it calls the `main` function.
 
+## CI/CD Pipeline
+Continuous Integration and Continuous Deployment (CI/CD) for this project are managed using GitHub Actions. The CI/CD pipeline automates the process of testing, building, and deploying the machine learning models.
+
+# CI/CD Workflow
+1. **Code Checkout**: The workflow checks out the code from the GitHub repository.
+2. **Python Environment Setup**: It sets up the Python environment and installs the necessary dependencies listed in requirements.txt.
+3. **Testing**: The workflow runs pytest to ensure the code quality and functionality.
+4. **Docker Image Build and Push**: It builds the Docker image for the model and pushes it to Google Container Registry.
+5. **Deployment**: The model is deployed to Google Cloud Run, ensuring a seamless and efficient deployment process.
+
+This automation facilitates rapid iteration and deployment, maintaining consistency and reliability throughout the development lifecycle.
+
+# CI/CD Workflow Configuration
+Here is the GitHub Actions workflow configuration used in this project:
+```
+name: Deploy to GCP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m venv mlops_venv
+        source mlops_venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${PYTHONPATH}:${{ github.workspace }}/src" >> $GITHUB_ENV
+
+    - name: Run tests
+      run: |
+        source mlops_venv/bin/activate
+        pytest tests/
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+
+    - name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v0.4.0
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Validate JSON key
+      run: echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
+
+    - name: Authenticate Docker to Google Container Registry
+      run: cat gcp-key.json | docker login -u _json_key --password-stdin https://gcr.io
+
+    - name: Build Docker image for mlflow-ui
+      run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest -f Dockerfile.mlflow .
+
+    - name: Push Docker image for mlflow-ui
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest
+
+    - name: Deploy mlflow-ui to Cloud Run
+      run: |
+        gcloud run deploy mlflow-ui \
+          --image gcr.io/${{ secrets.GCP_PROJECT }}/mlflow-ui:latest \
+          --platform managed \
+          --region us-central1 \
+          --allow-unauthenticated
+
+    - name: Build Docker image for training-script
+      run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest -f Dockerfile.train .
+
+    - name: Push Docker image for training-script
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest
+
+    - name: Create AI Platform Custom Job
+      run: |
+        gcloud ai custom-jobs create \
+          --region=us-central1 \
+          --display-name=training-script-job \
+          --worker-pool-spec=machine-type=n1-standard-4,replica-count=1,container-image-uri=gcr.io/${{ secrets.GCP_PROJECT }}/training-script:latest
+
+```
+
 ## Instructions for Running `ingestion.py`, `run_eda.py` and `train.py`
 
 To run `ingestion.py`, execute the following command:
