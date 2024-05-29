@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from ucimlrepo import fetch_ucirepo
 import mlflow
-from mlflow import sklearn
+import mlflow.sklearn
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -17,13 +17,14 @@ def load_dataset():
         tuple: A tuple containing training features (X_train), test features (X_test), 
                training target labels (y_train), and test target labels (y_test).
     """
+    logging.info("Loading dataset...")
     maternal_health_risk = fetch_ucirepo(id=863)
     X = maternal_health_risk.data.features
     y = maternal_health_risk.data.targets
 
     # Split into training and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+    logging.info("Dataset loaded and split into train and test sets.")
     return X_train, X_test, y_train, y_test
 
 def encode_labels(y):
@@ -51,6 +52,7 @@ def train_model(X_train, y_train):
     Returns:
         RandomForestClassifier: Trained model.
     """
+    logging.info("Training model...")
     # Define parameter grid for grid search
     param_grid = {
         'n_estimators': [100, 200, 300, 500],
@@ -74,8 +76,8 @@ def train_model(X_train, y_train):
     best_estimator = grid_search.best_estimator_
     
     # Log the model with MLflow
-    sklearn.log_model(best_estimator, "model")
-
+    mlflow.sklearn.log_model(best_estimator, "model")
+    logging.info("Model trained and logged to MLflow.")
     return best_estimator
 
 def evaluate_model(model, X_test, y_test):
@@ -87,31 +89,41 @@ def evaluate_model(model, X_test, y_test):
         X_test (array-like): Test features.
         y_test (array-like): Test target labels.
     """
+    logging.info("Evaluating model...")
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print("Accuracy:", accuracy)
+    logging.info(f"Accuracy: {accuracy}")
 
     # Log evaluation metrics using MLflow
     mlflow.log_metric("accuracy", accuracy)
     mlflow.log_param("n_estimators", model.n_estimators)
-    mlflow.log_param("max_depth", model.max_depth)
+    mlflow.log_param("max_depth", model.max_depth if model.max_depth is not None else -1)
     mlflow.log_param("min_samples_split", model.min_samples_split)
 
     # Log classification report
     report = classification_report(y_test, y_pred)
-    print("Classification Report:\n", report)
+    logging.info(f"Classification Report:\n{report}")
     mlflow.log_text(report, "report.txt")
 
 def main():
     try:
-        X_train, X_test, y_train, y_test = load_dataset()
+        # Set the MLflow tracking URI
+        mlflow.set_tracking_uri("http://your-mlflow-tracking-server")
+        
+        # Set the experiment name
         experiment_name = "mlops-bootcamp"
-        experiment = mlflow.set_experiment(experiment_name)
-        with mlflow.start_run(experiment_id=experiment.experiment_id):
+        mlflow.set_experiment(experiment_name)
+        
+        with mlflow.start_run():
+            X_train, X_test, y_train, y_test = load_dataset()
+            y_train = encode_labels(y_train)
+            y_test = encode_labels(y_test)
             model = train_model(X_train, y_train)
             evaluate_model(model, X_test, y_test)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+        mlflow.log_artifact("error.log")
+        raise
 
 if __name__ == "__main__":
     main()
