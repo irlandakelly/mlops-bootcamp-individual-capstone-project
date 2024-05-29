@@ -108,7 +108,7 @@ def evaluate_model(model, X_test, y_test):
 def main():
     try:
         # Set the MLflow tracking URI
-        mlflow.set_tracking_uri("http://your-mlflow-tracking-server")
+        mlflow.set_tracking_uri("https://mlflow-ui-o33kkbr4pa-uc.a.run.app/")
         
         # Set the experiment name
         experiment_name = "mlops-bootcamp"
